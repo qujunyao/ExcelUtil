@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context-2.5.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!--配置文件中使用占位符 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="10" />
+		<property name="locations">
+			<list>
+				<value>jdbc.properties</value>
+				<value>excel.properties</value>
+				<value>stream.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 数据库连接池 for 交易 -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+		destroy-method="close">
+		<property name="driverClassName">
+			<value>${jdbc.driver}</value>
+		</property>
+		<property name="url">
+			<value>${jdbc.url}</value>
+		</property>
+		<property name="username">
+			<value>${jdbc.username}</value>
+		</property>
+		<property name="password">
+			<value>${jdbc.password}</value>
+		</property>
+		<property name="maxActive">
+			<value>20</value>
+		</property>
+		<property name="maxIdle">
+			<value>12</value>
+		</property>
+		<property name="initialSize">
+			<value>3</value>
+		</property>
+		<property name="maxWait">
+			<value>25000</value>
+		</property>
+	</bean>
+
+	<!-- 设置RMI配置方式 -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="order" value="30" />
+		<property name="placeholderPrefix" value="$[" />
+		<property name="placeholderSuffix" value="]" />
+		<property name="locations">
+			<list>
+				<value>excel.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- 事务管理配置 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!--newExcute方法开头的方法将在新事务中执行 -->
+			<tx:method name="newExcute*" propagation="REQUIRES_NEW" />
+			<!--nestedExcute方法开头的方法将在嵌套事务中执行 -->
+			<tx:method name="nestedExcute*" propagation="NESTED" />
+			<tx:method name="get*" read-only="true" />
+			<!-- name指定目标方法的范围 save* 就是以save开头的方法 propagation 传播属性 用来解决嵌套事务的问题 isolation 
+				隔离机制 read-only true 只读事务 false 读写事务 -->
+			<tx:method name="insert*" propagation="REQUIRED" read-only="false"/>
+			<tx:method name="*" propagation="REQUIRED" rollback-for="Exception" />
+		</tx:attributes>
+	</tx:advice>
+
+	<aop:config><!-- proxy-target-class="true" -->
+		<aop:pointcut id="interceptorDAO"
+			expression="execution(* dao..*.*(..))" />
+		<aop:pointcut id="interceptorOperation"
+			expression="execution(* operation..*.*(..))" />
+		<aop:pointcut id="interceptor"
+			expression="execution(* dao..*.*(..)) or execution(* operation..*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="interceptorOperation" />
+	</aop:config>
+	<!-- 事务管理配置结束 -->
+
+	<bean id="nativeJdbcExtractor" class="org.springframework.jdbc.support.nativejdbc.CommonsDbcpNativeJdbcExtractor" lazy-init="true">
+	</bean>
+	<bean id="oracleLobHandler" class="org.springframework.jdbc.support.lob.OracleLobHandler" lazy-init="true">
+   		<property name="nativeJdbcExtractor" ref="nativeJdbcExtractor"/>
+	</bean>
+	<!-- 业务层 -->	
+	<bean id="excelOperation" class="operation.impl.ExcelOpeartionImpl">
+		<property name="baseDao" ref="baseDao"></property>
+	</bean>
+	<bean id="streamOperation" class="operation.impl.StreamOperationImpl">
+		<property name="baseDao" ref="baseDao"></property>
+	</bean>
+	<!-- DAO层 -->
+	<bean id="baseDao" class="dao.jdbc.BaseDaoJdbc">
+		<property name="dataSource" ref="dataSource" />
+	   <property name="lobHandler" ref="oracleLobHandler"/>
+	</bean>
+
+	<bean id="excelUtil" class="mainUtil.ExcelUtil">
+	</bean>
+	
+	<bean id="streamUtil" class="mainUtil.StreamUtil">
+	</bean>
+	
+	<!-- 系统配置项 -->
+	<bean id="config" class="java.util.Properties">
+		<constructor-arg type="java.util.Properties">
+			<props>
+				<!-- Excel -->
+				<prop key="excel_maxLine">${excel.exp_maxLine}</prop> <!-- Excel表格每页的行数，最大1048575 -->
+				<prop key="excel_outputPath">${excel.exp_outputPath}</prop> <!-- Excel表格保存的路径 -->
+				<prop key="excel_excelSql">${excel.exp_sql}</prop> <!-- 要导出的sql语句 -->
+				<prop key="excel_csvPath">${excel.inp_csvPath}</prop> <!-- csv表格的路径 -->
+				
+				<!-- Stream -->
+				<prop key="stream_path">${stream.outputPath}</prop> <!-- 图片保存的路径 -->
+				<prop key="stream_sql">${stream.sql}</prop> <!-- 要导出的sql语句 -->
+				<prop key="stream_PK">${stream.pk}</prop> <!-- 要导出的sql语句 -->
+				<prop key="stream_suffix">${stream.suffix}</prop> <!-- 要导出的sql语句 -->
+				
+			</props>
+		</constructor-arg>
+	</bean>
+	<!-- 系统配置项结束 -->
+</beans>
