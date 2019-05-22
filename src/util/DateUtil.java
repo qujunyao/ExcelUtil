@@ -345,7 +345,6 @@ public class DateUtil {
 
 	public static String formatDate(String date, String pattern) throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat(pattern);
-		Date dt = sdf.parse(date);
 		return sdf.format(date);
 	}
 

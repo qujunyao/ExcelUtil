@@ -16,7 +16,6 @@ import java.util.Set;
 import mainUtil.ExcelUtil;
 import model.StringBlock;
 
-import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFCell;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
@@ -40,7 +39,6 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 		this.baseDao = baseDao;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void exportExcel(ExcelUtil excelUtil) {
 		// 每个表的实际最大行数。
 		int line = 0;
@@ -52,11 +50,11 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 		SXSSFCell cell = null;
 
 		String sqlcount = "select count(1) from (" + excelUtil.getSql() + ") t";
-		List<Map<Object, Object>> listcount = baseDao.getList(sqlcount);
+		List<Map<String, Object>> listcount = baseDao.getList(sqlcount);
 		// sql查询的总条数。
 		int count = 0;
 		if (listcount != null && listcount.size() > 0) {
-			count = Integer.parseInt(((Map<Object, Object>) listcount.get(0)).get("COUNT(1)").toString());
+			count = Integer.parseInt(((Map<String, Object>) listcount.get(0)).get("COUNT(1)").toString());
 		}
 		// 计算队列装载的次数。
 		int num = count / downloadRecordNum;
@@ -67,9 +65,9 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 		String sqlList;
 
 		// 根据sql语句查询表头
-		List<Map<Object, Object>> listhead = baseDao.getList("select * from (" + excelUtil.getSql() + ") t where rownum = 1");
+		List<Map<String, Object>> listhead = baseDao.getList("select * from (" + excelUtil.getSql() + ") t where rownum = 1");
 		// 将集合转成队列，然后没次做出队操作，队列的元素会越来越少。
-		Queue<Map<Object, Object>> queue = new LinkedList<Map<Object, Object>>();
+		Queue<Map<String, Object>> queue = new LinkedList<Map<String, Object>>();
 		// 如果总条数大于表格的最大行数，则需要分页导出，每页按照表格的最大行数导出，最后一页行数为剩余数据的个数。
 		int maxline = 0;
 		if (excelUtil.getMaxLine() == null || "".equals(excelUtil.getMaxLine())) {
@@ -91,7 +89,7 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 			line = count;
 		}
 		String name = null;
-		Map<Object, Object> map = null;
+		Map<String, Object> map = null;
 		Object obj = null;
 		System.out.println("本次执行共加载" + num + "次队列。");
 		// 主程序 外层循环工作表的个数，至少循环一次
@@ -107,8 +105,8 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 			// 创建表头
 			row = (SXSSFRow) sheet.createRow(0);
 			// 取出键值对中的键，即为列名
-			Set<Object> set = listhead.get(0).keySet();
-			Iterator<Object> it = set.iterator();
+			Set<String> set = listhead.get(0).keySet();
+			Iterator<String> it = set.iterator();
 			String[] str = new String[set.size()];
 			for (int j = 0; j < set.size(); j++) {
 				name = (String) it.next();
@@ -173,7 +171,6 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 		System.out.println("数据写入文件完毕。");
 	}
 
-	@SuppressWarnings("unchecked")
 	public void importCsv(ExcelUtil excelUtil) {
 		String csvpath = excelUtil.getCsvPath();
 		if (csvpath == null || "".equals(csvpath)) {
@@ -191,7 +188,7 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 		}
 		// 查询表名，列名，列的数据类型
 		String tableSql = "select column_name,data_type from user_tab_cols where table_name=upper('" + tableName + "') order by column_id";
-		List<Map<Object, Object>> list = null;
+		List<Map<String, Object>> list = null;
 		try {
 			list = baseDao.getList(tableSql);
 		} catch (Exception e) {
@@ -321,9 +318,8 @@ public class ExcelOpeartionImpl implements ExcelOperation {
 		System.out.println("数据插入完毕，成功条数：" + success + "；失败条数：" + error);
 	}
 
-	@SuppressWarnings("rawtypes")
-	public List getListBysql(String sql) {
-		List list = null;
+	public List<Map<String, Object>> getListBysql(String sql) {
+		List<Map<String, Object>> list = null;
 		try {
 			list = baseDao.getList(sql);
 		} catch (Exception e) {

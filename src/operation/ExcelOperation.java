@@ -1,6 +1,7 @@
 package operation;
 
 import java.util.List;
+import java.util.Map;
 
 import mainUtil.ExcelUtil;
 
@@ -35,6 +36,6 @@ public interface ExcelOperation {
 	 * @param sql
 	 * @return
 	 */
-	public List getListBysql(String sql);
+	public List<Map<String, Object>> getListBysql(String sql);
 
 }

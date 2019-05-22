@@ -3,13 +3,10 @@ package util;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 public class FileType {
 
@@ -116,6 +113,7 @@ public class FileType {
 	 * @param filePaht
 	 * @return
 	 */
+	@SuppressWarnings("resource")
 	public static String getFileType(String filePaht) {
 		String res = null;
 		try {

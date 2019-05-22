@@ -2,7 +2,6 @@ package mainUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -143,6 +142,7 @@ public class MyThread implements Runnable {
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("resource")
 	private static byte[] readFile(File file) throws Exception {
 		if (file.exists() && file.isFile()) {
 			JarFile jar = null;
@@ -176,6 +176,7 @@ public class MyThread implements Runnable {
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	private static boolean onlyOneFile(JarFile jar) {
 		Enumeration enu = jar.entries();
 		int count = 0;

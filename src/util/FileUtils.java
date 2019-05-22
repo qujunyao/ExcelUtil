@@ -17,6 +17,7 @@ import java.util.List;
 
 public class FileUtils {
 
+	@SuppressWarnings("resource")
 	public byte[] getContent(String filePath) throws IOException {
 		File file = new File(filePath);
 		long fileSize = file.length();
@@ -126,6 +127,7 @@ public class FileUtils {
 	 * @return
 	 * @throws IOException
 	 */
+	@SuppressWarnings("resource")
 	public static byte[] toByteArray3(String filename) throws IOException {
 
 		FileChannel fc = null;
@@ -252,7 +254,7 @@ public class FileUtils {
 	 */
 	public static List<File> getFileList(String strPath, String dex) {
 		File dir = new File(strPath);
-		List filelist = new ArrayList();
+		List<File> filelist = new ArrayList<File>();
 		File[] files = dir.listFiles(); // 该文件目录下文件全部放入数组
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {

@@ -26,6 +26,8 @@
 	<classpathentry kind="lib" path="lib/aspectjweaver-1.6.5.jar"/>
 	<classpathentry kind="lib" path="lib/GNNTBankFile.jar"/>
 	<classpathentry kind="lib" path="lib/JavaUtil.jar"/>
+	<classpathentry kind="lib" path="lib/org.springframework.context.support-3.0.2.RELEASE.jar"/>
+	<classpathentry kind="lib" path="lib/quartz-1.5.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

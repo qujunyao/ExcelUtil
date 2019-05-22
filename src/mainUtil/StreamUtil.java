@@ -1,5 +1,6 @@
 package mainUtil;
 
+
 import operation.StreamOperation;
 import util.DAOBeanFactory;
 
@@ -74,5 +75,21 @@ public class StreamUtil {
 		util.getStreamOperation().exportStream(util);
 		long end = System.currentTimeMillis();
 		System.out.println("方法执行完成！用时" + (end - start) * 0.001 + "秒");
+		
+		
+//		StreamUtil util = StreamUtil.getInstance();
+//		util.init();
+//		String path = "pic";
+//		LinkedList<File> files = FileUtils.traverseFolder2(path);
+//		byte[] bs = null;
+//		for (File file : files) {
+//			try {
+//				bs = FileUtils.toByteArray3(file.getAbsolutePath());
+//				String sql = "insert into k_firmpicture values(2,'abcde',?,sysdate)";
+//				util.getStreamOperation().insertByStream(sql, bs);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			}
+//		}
 	}
 }

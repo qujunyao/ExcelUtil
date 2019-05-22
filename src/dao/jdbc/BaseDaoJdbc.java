@@ -3,7 +3,7 @@ package dao.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Random;
+import java.util.Map;
 
 import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -27,7 +27,7 @@ public class BaseDaoJdbc extends JdbcDaoSupport implements BaseDao {
 		this.lobHandler = lobHandler;
 	}
 
-	public List getList(String sql) {
+	public List<Map<String, Object>> getList(String sql) {
 		return getJdbcTemplate().queryForList(sql);
 	}
 

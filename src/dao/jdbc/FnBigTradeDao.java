@@ -1,6 +1,6 @@
 package dao.jdbc;
 
-
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -22,36 +22,29 @@ import org.springframework.jdbc.core.SqlOutParameter;
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
 import org.springframework.jdbc.object.StoredProcedure;
-import org.springframework.util.Assert;
 
 public class FnBigTradeDao extends JdbcDaoSupport {
 
-	
-
-	public String batchAddPrivilege(final String type, final String members, String firmids,
-			TradePrivilege entity) {
-		final Object [] firmid = firmids.split(",");
+	public String batchAddPrivilege(final String type, final String members, String firmids, TradePrivilege entity) {
+		final Object[] firmid = firmids.split(",");
 		final TradePrivilege privilege = entity;
 		BatchAddPrivilegeProcedure sfunc = new BatchAddPrivilegeProcedure(this.getDataSource());
-		
+
 		ParameterMapper parameterMapper = new ParameterMapper() {
 			@Override
-			public Map createMap(Connection conn) throws SQLException {
+			public Map<String, Serializable> createMap(Connection conn) throws SQLException {
 				conn = ((PoolableConnection) conn.getMetaData().getConnection()).getDelegate();
-				
-				Map inputs = new HashMap();
+
+				Map<String, Serializable> inputs = new HashMap<String, Serializable>();
 				inputs.put("p_type", type);
 				inputs.put("p_members", members);
-				StructDescriptor recDesc = StructDescriptor.createDescriptor(
-						"K_TYPE_Privilege_firmids", conn);
+				StructDescriptor recDesc = StructDescriptor.createDescriptor("K_TYPE_Privilege_firmids", conn);
 				ArrayList<STRUCT> pstruct = new ArrayList<STRUCT>();
 				STRUCT item = new STRUCT(recDesc, conn, firmid);
 				pstruct.add(item);
-				
-				ArrayDescriptor tabDesc = ArrayDescriptor.createDescriptor(
-						"k_type_array_privilege_firmids", conn);
-				ARRAY vArray = new ARRAY(tabDesc, conn, pstruct
-						.toArray(new STRUCT[pstruct.size()]));
+
+				ArrayDescriptor tabDesc = ArrayDescriptor.createDescriptor("k_type_array_privilege_firmids", conn);
+				ARRAY vArray = new ARRAY(tabDesc, conn, pstruct.toArray(new STRUCT[pstruct.size()]));
 
 				inputs.put("p_arr_privilege_firmids", vArray);
 				inputs.put("p_kind", privilege.getKind());
@@ -63,9 +56,10 @@ public class FnBigTradeDao extends JdbcDaoSupport {
 			}
 
 		};
-		Map results = sfunc.execute(parameterMapper);
+		Map<?, ?> results = sfunc.execute(parameterMapper);
 		return String.valueOf(((Integer) results.get("ret")).intValue());
 	}
+
 	private class BatchAddPrivilegeProcedure extends StoredProcedure {
 		private static final String SFUNC_NAME = "fn_k_batchaddprivilege";
 
@@ -83,6 +77,7 @@ public class FnBigTradeDao extends JdbcDaoSupport {
 			compile();
 		}
 
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Map execute(Map map) {
 			return super.execute(map);
 		}

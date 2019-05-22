@@ -1,6 +1,7 @@
 package dao;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Excel操作接口.
@@ -13,7 +14,7 @@ public interface BaseDao {
 	 * @param sql
 	 * @return
 	 */
-	public List getList(String sql);
+	public List<Map<String, Object>> getList(String sql);
 
 	/**
 	 * 根据sql语句插入到数据库

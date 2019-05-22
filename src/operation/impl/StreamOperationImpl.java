@@ -12,7 +12,6 @@ import mainUtil.StreamUtil;
 
 import dao.BaseDao;
 import operation.StreamOperation;
-import util.DAOBeanFactory;
 import util.StringUtil;
 
 public class StreamOperationImpl implements StreamOperation {
@@ -23,7 +22,6 @@ public class StreamOperationImpl implements StreamOperation {
 		this.baseDao = baseDao;
 	}
 
-	@SuppressWarnings("unchecked")
 	public void exportStream(StreamUtil streamUtil) {
 		// 队列装载容量,及相关数据
 		int downloadRecordNum = 500;
@@ -43,10 +41,10 @@ public class StreamOperationImpl implements StreamOperation {
 
 		// sql查询的总条数。
 		String sqlcount = "select count(1) from (" + sql + ") t";
-		List<Map<Object, Object>> listcount = baseDao.getList(sqlcount);
+		List<Map<String, Object>> listcount = baseDao.getList(sqlcount);
 		int count = 0;
 		if (listcount != null && listcount.size() > 0) {
-			count = Integer.parseInt(((Map<Object, Object>) listcount.get(0)).get("COUNT(1)").toString());
+			count = Integer.parseInt(((Map<String, Object>) listcount.get(0)).get("COUNT(1)").toString());
 		}
 
 		// 计算队列装载次数
@@ -57,14 +55,14 @@ public class StreamOperationImpl implements StreamOperation {
 		int temp = 0;
 
 		// 查询列名
-		List<Map<Object, Object>> listhead = baseDao.getList("select * from (" + sql + ") t where rownum = 1");
-		Set<Object> set = listhead.get(0).keySet();
-		Iterator<Object> it = set.iterator();
+		List<Map<String, Object>> listhead = baseDao.getList("select * from (" + sql + ") t where rownum = 1");
+		Set<String> set = listhead.get(0).keySet();
+		Iterator<String> it = set.iterator();
 		String[] str = new String[set.size()];
 		for (int j = 0; j < set.size(); j++) {
 			str[j] = (String) it.next();
 		}
-		List<Map<Object, Object>> list = null;
+		List<Map<String, Object>> list = null;
 		String sqlList = null;
 		FileOutputStream fos = null;
 		File file = null;

@@ -119,6 +119,9 @@
 	<bean id="streamUtil" class="mainUtil.StreamUtil">
 	</bean>
 	
+	<bean id="taskUtil" class="mainUtil.TaskUtil">
+	</bean>
+	
 	<!-- 系统配置项 -->
 	<bean id="config" class="java.util.Properties">
 		<constructor-arg type="java.util.Properties">
@@ -139,4 +142,30 @@
 		</constructor-arg>
 	</bean>
 	<!-- 系统配置项结束 -->
+	
+	
+	<!-- 定时任务begin -->
+	<bean name="quartzScheduler" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<!--每个任务-->
+				<ref bean="cronTrigger"/>
+			</list>
+		</property>
+		<property name="configLocation" value="classpath:quartz.properties"/>
+	</bean>
+	<!--每个任务都需要配置-->
+	<bean id="cronTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<property name="jobDetail" ref="autoOpenServer"/>	
+		<!--every day 08:00:00 execute once(0 0 8 * * ?), format: second minute hour date month weekday year(optional)-->
+		<!--最小频率1分钟1次-->
+		<property name="cronExpression" value="1 * * * * ?"/>
+	</bean>
+	<!-- call timer method -->
+	<bean id="autoOpenServer" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject" ref="taskUtil"/>
+		<property name="targetMethod" value="autoTest"/>
+	</bean>	
+	<!--每个任务都需要配置-->
+	<!-- 定时任务 end -->
 </beans>
